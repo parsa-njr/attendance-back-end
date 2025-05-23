@@ -71,7 +71,7 @@ const updateCategory = tryCatch(async (req, res) => {
   }
   const { error } = categoryValidation.validate(req.body);
   if (error) {
-    const errorMessage = error.details.map1((e) => e.message).join(", ");
+    const errorMessage = error.details.map((e) => e.message).join(", ");
     throw new UnprocessableEntityError(errorMessage);
   }
 
