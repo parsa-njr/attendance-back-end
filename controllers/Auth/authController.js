@@ -41,7 +41,7 @@ const login = tryCatch(async (req, res) => {
   const { error } = loginValidation.validate(req.body);
   if (error) {
     const errorMessages = error.details.map((e) => e.message).join(", ");
-    throw new UnprocessableEntityError("Validation failed: " + errorMessages);
+    throw new UnprocessableEntityError(errorMessages);
   }
 
   const { phone, password } = req.body;
