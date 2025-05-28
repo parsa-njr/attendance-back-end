@@ -8,6 +8,7 @@ const authRoute = require("./routes/Auth/authRoute");
 const predictRoute = require("./routes/predictRoute");
 const userRoute = require("./routes/Customer/userRoute");
 const customerProfileRoute = require("./routes/Customer/profileRoute");
+const locationRoute = require("./routes/Customer/locationRoute");
 const notFound = require("./middleware/notFound");
 const errorHandler = require("./middleware/errorHandler");
 const connectDB = require("./db/connect");
@@ -35,7 +36,8 @@ app.use(
   categoryRoute,
   predictRoute,
   userRoute,
-  customerProfileRoute
+  customerProfileRoute,
+  locationRoute
 );
 app.use("/api/v1/auth", authRoute);
 
