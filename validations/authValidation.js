@@ -3,50 +3,49 @@ const Joi = require("joi");
 // Signup Validation Schema
 const signupValidation = Joi.object({
   name: Joi.string().min(3).max(30).required().messages({
-    "string.base": "Username must be a string.",
-    "string.empty": "Username cannot be empty.",
-    "string.min": "Username must be at least 3 characters long.",
-    "string.max": "Username must not exceed 30 characters.",
-    "any.required": "Username is required.",
+    "string.base": "نام کاربری باید یک رشته باشد.",
+    "string.empty": "نام کاربری نمی‌تواند خالی باشد.",
+    "string.min": "نام کاربری باید حداقل ۳ کاراکتر باشد.",
+    "string.max": "نام کاربری نباید بیش از ۳۰ کاراکتر باشد.",
+    "any.required": "نام کاربری الزامی است.",
   }),
   phone: Joi.string()
-    .pattern(/^09[0-9]{9}$/) // Valid Iranian phone number format (e.g., 09123456789)
+    .pattern(/^09[0-9]{9}$/) // فرمت معتبر شماره تلفن ایرانی (مثلاً 09123456789)
     .required()
     .messages({
-      "string.base": "Phone number must be a string.",
-      "string.empty": "Phone number cannot be empty.",
+      "string.base": "شماره تلفن باید یک رشته باشد.",
+      "string.empty": "شماره تلفن نمی‌تواند خالی باشد.",
       "string.pattern.base":
-        "Phone number must be 11 digits and start with 09.",
-      "any.required": "Phone number is required.",
+        "شماره تلفن باید ۱۱ رقم باشد و با 09 شروع شود.",
+      "any.required": "شماره تلفن الزامی است.",
     }),
   password: Joi.string().min(6).max(50).required().messages({
-    "string.base": "Password must be a string.",
-    "string.empty": "Password cannot be empty.",
-    "string.min": "Password must be at least 6 characters long.",
-    "string.max": "Password must not exceed 50 characters.",
-    "any.required": "Password is required.",
+    "string.base": "رمز عبور باید یک رشته باشد.",
+    "string.empty": "رمز عبور نمی‌تواند خالی باشد.",
+    "string.min": "رمز عبور باید حداقل ۶ کاراکتر باشد.",
+    "string.max": "رمز عبور نباید بیش از ۵۰ کاراکتر باشد.",
+    "any.required": "رمز عبور الزامی است.",
   }),
- 
 });
 
 // Login Validation Schema
 const loginValidation = Joi.object({
- phone: Joi.string()
-    .pattern(/^09[0-9]{9}$/) // Valid Iranian phone number format (e.g., 09123456789)
+  phone: Joi.string()
+    .pattern(/^09[0-9]{9}$/) // فرمت معتبر شماره تلفن ایرانی (مثلاً 09123456789)
     .required()
     .messages({
-      "string.base": "Phone number must be a string.",
-      "string.empty": "Phone number cannot be empty.",
+      "string.base": "شماره تلفن باید یک رشته باشد.",
+      "string.empty": "شماره تلفن نمی‌تواند خالی باشد.",
       "string.pattern.base":
-        "Phone number must be 11 digits and start with 09.",
-      "any.required": "Phone number is required.",
+        "شماره تلفن باید ۱۱ رقم باشد و با 09 شروع شود.",
+      "any.required": "شماره تلفن الزامی است.",
     }),
   password: Joi.string().min(6).max(50).required().messages({
-    "string.base": "Password must be a string.",
-    "string.empty": "Password cannot be empty.",
-    "string.min": "Password must be at least 6 characters long.",
-    "string.max": "Password must not exceed 50 characters.",
-    "any.required": "Password is required.",
+    "string.base": "رمز عبور باید یک رشته باشد.",
+    "string.empty": "رمز عبور نمی‌تواند خالی باشد.",
+    "string.min": "رمز عبور باید حداقل ۶ کاراکتر باشد.",
+    "string.max": "رمز عبور نباید بیش از ۵۰ کاراکتر باشد.",
+    "any.required": "رمز عبور الزامی است.",
   }),
 });
 
@@ -56,22 +55,22 @@ const otpValidation = Joi.object({
     .pattern(/^09[0-9]{9}$/)
     .required()
     .messages({
-      "string.base": "Phone number must be a string.",
-      "string.empty": "Phone number cannot be empty.",
+      "string.base": "شماره تلفن باید یک رشته باشد.",
+      "string.empty": "شماره تلفن نمی‌تواند خالی باشد.",
       "string.pattern.base":
-        "Phone number must be 11 digits and start with 09.",
-      "any.required": "Phone number is required.",
+        "شماره تلفن باید ۱۱ رقم باشد و با 09 شروع شود.",
+      "any.required": "شماره تلفن الزامی است.",
     }),
   otp: Joi.string()
-    .length(5)
-    .pattern(/^[0-9]{6}$/) // OTP must be a 5-digit number
+    .length(6)
+    .pattern(/^[0-9]{6}$/) // OTP باید عدد 6 رقمی باشد
     .required()
     .messages({
-      "string.base": "OTP must be a string.",
-      "string.empty": "OTP cannot be empty.",
-      "string.length": "OTP must be exactly 6 digits.",
-      "string.pattern.base": "OTP must be a 6-digit number.",
-      "any.required": "OTP is required.",
+      "string.base": "کد تایید باید یک رشته باشد.",
+      "string.empty": "کد تایید نمی‌تواند خالی باشد.",
+      "string.length": "کد تایید باید دقیقاً ۶ رقم باشد.",
+      "string.pattern.base": "کد تایید باید عددی ۶ رقمی باشد.",
+      "any.required": "کد تایید الزامی است.",
     }),
 });
 
