@@ -8,6 +8,7 @@ const authRoute = require("./routes/Auth/authRoute");
 const aiRoute = require("./routes/aiRoute");
 const userRoute = require("./routes/Customer/userRoute");
 const customerProfileRoute = require("./routes/Customer/profileRoute");
+const locationRoute = require("./routes/Customer/locationRoute");
 const notFound = require("./middleware/notFound");
 const errorHandler = require("./middleware/errorHandler");
 const connectDB = require("./db/connect");
@@ -33,8 +34,16 @@ app.use(
   express.static(path.join(__dirname, "images/profileImages"))
 );
 
-// Routes
-app.use("/api/v1", categoryRoute, aiRoute, userRoute, customerProfileRoute);
+
+app.use(
+  "/api/v1",
+  categoryRoute,
+  predictRoute,
+  userRoute,
+  customerProfileRoute,
+  locationRoute
+);
+
 app.use("/api/v1/auth", authRoute);
 
 // Error handlers
