@@ -38,7 +38,7 @@ app.use(
 app.use(
   "/api/v1",
   categoryRoute,
-  predictRoute,
+  // predictRoute,
   userRoute,
   customerProfileRoute,
   locationRoute
