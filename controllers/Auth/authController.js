@@ -10,6 +10,7 @@ const {
 const {
   UnprocessableEntityError,
   AuthenticationError,
+  NotFoundError
 } = require("../../errors/customError");
 const bcrypt = require("bcrypt");
 require("dotenv").config();
@@ -87,7 +88,16 @@ const login = tryCatch(async (req, res) => {
   });
 });
 
+const logout = tryCatch(async (req, res) => {
+  res.status(200).json({
+    msg: "شما با موفقیت خارج شدید",
+    success: true,
+    token: null,
+  });
+});
+
 module.exports = {
   signUp,
   login,
+  logout,
 };
