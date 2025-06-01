@@ -13,7 +13,7 @@ const bcrypt = require("bcrypt");
 const createUser = tryCatch(async (req, res) => {
   const customerId = req.user.id;
 
-  const customer = await Customer.findById(customerId);
+  const customer = await Customer.findOne({_id : customerId});
   if (!customer) {
     throw new NotFoundError("چنین کاربری یافت نشد");
   }
@@ -103,6 +103,28 @@ const editUser = tryCatch(async (req, res) => {
   });
 });
 
+const deleteUser = tryCatch(async (req, res) => {
+  const customerId = req.user.id;
+  const userId = req.params.userId;
+
+  const user = await User.findOne({ _id: userId, employer: customerId });
+
+  if (!user) {
+    throw new NotFoundError("کاربر یافت نشد یا دسترسی ندارید");
+  }
+
+  await User.findOneAndDelete({ _id: userId });
+
+  await Customer.findOneAndDelete(userId, {
+    $pull: { users: userId },
+  });
+
+  res.status(200).json({
+    success: true,
+    message: "کاربر با موفقیت حذف شد",
+  });
+});
+
 const getUsers = tryCatch(async (req, res) => {
   const customerId = req.user.id;
   const { data, pagination } = await paginate(req, User, {
@@ -113,8 +135,8 @@ const getUsers = tryCatch(async (req, res) => {
     success: true,
     data: pagination
       ? {
-          ...pagination,
           data,
+          ...pagination,
         }
       : data,
     message: "",
@@ -125,4 +147,5 @@ module.exports = {
   createUser,
   editUser,
   getUsers,
+  deleteUser,
 };
