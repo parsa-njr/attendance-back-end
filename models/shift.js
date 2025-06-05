@@ -1,28 +1,35 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-const timeSlotSchema = new mongoose.Schema({
-  startTime: String, // e.g., "08:00"
-  endTime: String    // e.g., "16:00"
-}, { _id: false });
+const timeSchema = new mongoose.Schema({
+  startTime: { type: String, required: true },
+  endTime: { type: String, required: true },
+});
 
-const daySchema = new mongoose.Schema({
-  day: Number, // 1 = Saturday, ..., 7 = Friday
-  time: [timeSlotSchema]
-}, { _id: false });
+const shiftDaySchema = new mongoose.Schema({
+  day: { type: Number, required: true },
+  isOffDay: { type: Boolean, default: false }, 
+  time: { type: [timeSchema], required: true },
+});
 
 const exceptionDaySchema = new mongoose.Schema({
-  day: Number,
-  date: Date,
-  time: [timeSlotSchema]
-}, { _id: false });
+  day: { type: Number, required: true },
+  date: { type: Date, required: true },
+  time: { type: [timeSchema], required: true },
+});
 
-const shiftSchema = new mongoose.Schema({
-  customer: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Customer",
-  }, 
-   shiftDays: [daySchema],
-  exceptionDays: [exceptionDaySchema]
-}, { timestamps: true });
+const shiftSchema = new mongoose.Schema(
+  {
+    customer: { type: String, required: true },
+    shiftName: { type: String, required: true },
+    startDate: { type: Date, required: true },
+    endDate: { type: Date, required: true },
+    formalHolidays: { type: Boolean, default: false },
+    shiftDays: { type: [shiftDaySchema], default: [] },
+    exceptionDays: { type: [exceptionDaySchema], default: [] },
+  },
+  { timestamps: true }
+);
 
-module.exports = mongoose.model('Shift', shiftSchema);
+const Shift = mongoose.model("Shift", shiftSchema);
+
+module.exports = Shift;

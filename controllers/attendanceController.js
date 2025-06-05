@@ -1,5 +1,5 @@
 const Attendance = require("../models/attendance");
-const Shift = require("../models/Shift");
+const Shift = require("../models/shift");
 const LocationRange = require("../models/LocationRange");
 const getDistanceMeters = require("../utils/getDistanceMeters");
 const { tryCatch } = require("../utils/tryCatch");

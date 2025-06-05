@@ -1,49 +1,66 @@
-const { NotFoundError } = require("../../errors/customError");
 const { Customer } = require("../../models/customer");
 const Location = require("../../models/location");
 const { tryCatch } = require("../../utils/tryCatch");
+const {
+  NotFoundError,
+  UnprocessableEntityError,
+} = require("../../errors/customError");
+const paginate = require("../../utils/paginate");
+const { locationValidation } = require("../../validations/locationValidation");
 
-// Create a new location
+//
+// ────────────────────────────────────────────────────────────────────────────────
+// 📍 Create a new location
+//
 const createLocation = tryCatch(async (req, res) => {
-  const customerId = req.user.id;
+  console.log("req ::: ", req.body);
+
+  // Step 1: Check if the customer exists
+  const customerId = req.body.customerId;
   const customer = await Customer.findById(customerId);
   if (!customer) {
     throw new NotFoundError("چنین کاربری یافت نشد");
   }
-  const { error } = userValidation.validate(req.body);
+
+  // Step 2: Validate request body with Joi
+  const { error } = locationValidation.validate(req.body);
   if (error) {
     const errorMessage = error.details.map((e) => e.message).join(" ,");
     throw new UnprocessableEntityError(errorMessage);
   }
 
+  // Step 3: Destructure validated fields
   const { name, latitude, longitude, range } = req.body;
 
-  if (!name || latitude == null || longitude == null || range == null) {
-    return res.status(400).json({ message: "خطا در ارزیابی اطلاعات" });
-  }
 
-  const newLocation = await Location.create({
-    employer: customerId,
+  // Step 4: Create the new location
+  await Location.create({
+    customer: customerId,
     name,
     latitude,
     longitude,
     range,
   });
 
-  customer.locations.push(newLocation._id);
-  await customer.save();
+  // Step 5: Send success response
   res.status(201).json({
     success: true,
     message: "مکان با موفقیت ایجاد شد",
   });
 });
 
-// Get all locations
+//
+// ────────────────────────────────────────────────────────────────────────────────
+// 📍 Get all locations for the current logged-in customer (with pagination)
+//
 const getAllLocations = tryCatch(async (req, res) => {
   const customerId = req.user.id;
+
+  // Paginate locations filtered by customer
   const { data, pagination } = await paginate(req, Location, {
-    employer: customerId,
+    customer: customerId,
   });
+
   res.json({
     success: true,
     data: pagination
@@ -56,61 +73,95 @@ const getAllLocations = tryCatch(async (req, res) => {
   });
 });
 
-// Get one location by ID
+//
+// ────────────────────────────────────────────────────────────────────────────────
+// 📍 Get a single location by ID
+//
 const getLocationById = tryCatch(async (req, res) => {
   const { id } = req.params;
+
+  // Find location by ID
   const location = await Location.findById(id);
   if (!location) {
     throw new NotFoundError("محل مورد نظر یافت نشد");
   }
-  res.status(200).json(location);
+
+  res.status(200).json({
+    success: true,
+    data: location,
+  });
 });
 
-// Update location
+//
+// ────────────────────────────────────────────────────────────────────────────────
+// 📍 Update a location
+//
 const updateLocation = tryCatch(async (req, res) => {
-  const customerId = req.user.id;
   const locationId = req.params.id;
+  const customerId = req.body.customerId;
 
+  // Step 1: Check if customer exists
+  const customer = await Customer.findById(customerId);
+  if (!customer) {
+    throw new NotFoundError("چنین کاربری یافت نشد");
+  }
+
+  // Step 2: Ensure the location belongs to the customer
   const location = await Location.findOne({
     _id: locationId,
-    employer: customerId,
+    customer: customerId,
   });
   if (!location) {
     throw new NotFoundError("لوکیشن یافت نشد");
   }
 
-  const { error } = userValidation.validate(req.body);
+  // Step 3: Validate request data
+  const { error } = locationValidation.validate(req.body);
   if (error) {
     const errorMessage = error.details.map((e) => e.message).join(" ,");
     throw new UnprocessableEntityError(errorMessage);
   }
 
-  const updatedFields = { name, latitude, longitude, range };
-
+  // Step 4: Update the location
+  const { name, latitude, longitude, range } = req.body;
   const updated = await Location.findByIdAndUpdate(
-    { _id: locationId, employer: customerId },
-    { $set: updatedFields },
+    { _id: locationId, customer: customerId },
+    { $set: { name, latitude, longitude, range } },
     { new: true, runValidators: true }
   );
+
   if (!updated) {
     throw new NotFoundError("محل مورد نظر یافت نشد");
   }
+
   res.status(200).json({
     success: true,
     message: "لوکیشن با موفقیت به‌روزرسانی شد",
   });
 });
 
-// Delete location
+//
+// ────────────────────────────────────────────────────────────────────────────────
+// 📍 Delete a location
+//
 const deleteLocation = async (req, res) => {
   const { id } = req.params;
+
+  // Find and delete the location
   const deleted = await Location.findByIdAndDelete(id);
   if (!deleted) {
     throw new NotFoundError("محل مورد نظر یافت نشد");
   }
-  res.status(200).json({ message: "محل مورد نظر با موفقیت حذف شد" });
+
+  res
+    .status(200)
+    .json({ success: true, message: "محل مورد نظر با موفقیت حذف شد" });
 };
 
+//
+// ────────────────────────────────────────────────────────────────────────────────
+// 📤 Export controllers
+//
 module.exports = {
   createLocation,
   getAllLocations,

@@ -2,6 +2,11 @@ const mongoose = require("mongoose");
 
 const LocationSchema = new mongoose.Schema(
   {
+    customer: {
+      type: String,
+      required: true,
+      trim: true,
+    },
     name: {
       type: String,
       required: true,
@@ -16,7 +21,7 @@ const LocationSchema = new mongoose.Schema(
       required: true,
     },
     range: {
-      type: Number, 
+      type: Number,
       required: true,
     },
   },
