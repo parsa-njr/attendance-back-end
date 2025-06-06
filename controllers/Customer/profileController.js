@@ -5,14 +5,14 @@ const {
   NotFoundError,
   UnprocessableEntityError,
 } = require("../../errors/customError");
-const { userValidation } = require("../../validations/userValidation");
+const { profileValidation } = require("../../validations/profileValidation");
 const { tryCatch } = require("../../utils/tryCatch");
 const bcrypt = require("bcrypt");
 
 const editProfile = tryCatch(async (req, res) => {
   const customerId = req.user.id;
 
-  const { error } = userValidation.validate(req.body);
+  const { error } = profileValidation.validate(req.body);
   if (error) {
     const errorMessage = error.details.map((e) => e.message).join(" ,");
     throw new UnprocessableEntityError(errorMessage);
@@ -21,12 +21,15 @@ const editProfile = tryCatch(async (req, res) => {
   const { name, phone, password } = req.body;
 
   // Check for phone uniqueness excluding current user
-  const existingUser = await Customer.findOne({ phone , _id: { $ne: customerId } });
+  const existingUser = await Customer.findOne({
+    phone,
+    _id: { $ne: customerId },
+  });
   if (existingUser) {
     throw new ConflictError("این شماره قبلاً استفاده شده است");
   }
 
-  const updatedFields = { name, phone };
+  const updatedFields = { name, phone, password };
 
   // Update password if inserted
   if (password) {
@@ -36,7 +39,7 @@ const editProfile = tryCatch(async (req, res) => {
 
   // Update image if uploaded
   if (req.file) {
-    updatedFields.image = `/uploads/profile-images/${req.file.filename}`;
+    updatedFields.profileImage = `/uploads/profile-images/${req.file.filename}`;
   }
 
   await Customer.findOneAndUpdate(
@@ -51,6 +54,22 @@ const editProfile = tryCatch(async (req, res) => {
   });
 });
 
+const getProfile = tryCatch(async (req, res) => {
+  const customerId = req.user.id;
+
+  const customer = await Customer.findOne({ _id: customerId });
+
+  if (!customer) {
+    throw new NotFoundError("چنین کاربری یافت نشد");
+  }
+
+  res.status(200).json({
+    customer,
+    success: true,
+  });
+});
+
 module.exports = {
   editProfile,
+  getProfile,
 };

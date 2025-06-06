@@ -8,6 +8,8 @@ const authRoute = require("./routes/Auth/authRoute");
 const aiRoute = require("./routes/aiRoute");
 const userRoute = require("./routes/Customer/userRoute");
 const customerProfileRoute = require("./routes/Customer/profileRoute");
+const userRequestRoute = require("./routes/User/requestsRoute");
+const customerRequestRoute = require("./routes/Customer/requestRoute");
 const locationRoute = require("./routes/Customer/locationRoute");
 const userAttendanceRoute = require("./routes/User/attendanceRoute");
 const shiftRoute = require("./routes/Customer/shiftRoute");
@@ -33,9 +35,8 @@ app.use(express.urlencoded({ extended: true }));
 // Serve static profile images
 app.use(
   "/uploads/profile-images",
-  express.static(path.join(__dirname, "images/profileImages"))
+  express.static(path.join(__dirname, "images/profile-images"))
 );
-
 
 app.use(
   "/api/v1",
@@ -45,7 +46,10 @@ app.use(
   userAttendanceRoute,
   customerProfileRoute,
   locationRoute,
+  userRequestRoute,
+  customerRequestRoute,
   shiftRoute
+
 );
 
 app.use("/api/v1/auth", authRoute);

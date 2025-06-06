@@ -10,7 +10,7 @@ const {
 const {
   UnprocessableEntityError,
   AuthenticationError,
-  NotFoundError
+  NotFoundError,
 } = require("../../errors/customError");
 const bcrypt = require("bcrypt");
 require("dotenv").config();
@@ -32,8 +32,15 @@ const signUp = tryCatch(async (req, res) => {
   const token = createToken(newCustomer._id, "customer");
 
   res.status(201).json({
-    msg: "شما با موفقیت ثبت نام کردید",
+    message: "شما با موفقیت ثبت نام کردید",
     token,
+    user: {
+      id: newCustomer._id,
+      name: newCustomer.name,
+      phone: newCustomer.phone,
+      role: "customer",
+      profileImage: newCustomer.profileImage,
+    },
     success: true,
   });
 });
@@ -76,7 +83,7 @@ const login = tryCatch(async (req, res) => {
   const token = createToken(account._id, role);
 
   res.status(200).json({
-    msg: "شما با موفقیت وارد شدید",
+    message: "شما با موفقیت وارد شدید",
     success: true,
     token,
     user: {
@@ -90,7 +97,7 @@ const login = tryCatch(async (req, res) => {
 
 const logout = tryCatch(async (req, res) => {
   res.status(200).json({
-    msg: "شما با موفقیت خارج شدید",
+    message: "شما با موفقیت خارج شدید",
     success: true,
     token: null,
   });
