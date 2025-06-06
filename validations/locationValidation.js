@@ -1,10 +1,6 @@
 const Joi = require("joi");
 
 const locationValidation = Joi.object({
-  customerId: Joi.string().required().messages({
-    "string.empty": "شناسه مشتری الزامی است",
-    "any.required": "شناسه مشتری الزامی است",
-  }),
   name: Joi.string().min(2).max(50).required().messages({
     "string.empty": "نام الزامی است",
     "string.min": "نام باید حداقل ۲ حرف باشد",

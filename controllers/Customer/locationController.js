@@ -13,10 +13,10 @@ const { locationValidation } = require("../../validations/locationValidation");
 // 📍 Create a new location
 //
 const createLocation = tryCatch(async (req, res) => {
-  console.log("req ::: ", req.body);
+  console.log("req ::: ", req);
 
   // Step 1: Check if the customer exists
-  const customerId = req.body.customerId;
+  const customerId = req.user.id;
   const customer = await Customer.findById(customerId);
   if (!customer) {
     throw new NotFoundError("چنین کاربری یافت نشد");
@@ -98,7 +98,7 @@ const getLocationById = tryCatch(async (req, res) => {
 //
 const updateLocation = tryCatch(async (req, res) => {
   const locationId = req.params.id;
-  const customerId = req.body.customerId;
+  const customerId = req.user.id;
 
   // Step 1: Check if customer exists
   const customer = await Customer.findById(customerId);

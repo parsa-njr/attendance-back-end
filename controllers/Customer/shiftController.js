@@ -1,7 +1,10 @@
 const { Customer } = require("../../models/customer");
 const Shift = require("../../models/shift");
 const { tryCatch } = require("../../utils/tryCatch");
-const { NotFoundError, UnprocessableEntityError } = require("../../errors/customError");
+const {
+  NotFoundError,
+  UnprocessableEntityError,
+} = require("../../errors/customError");
 const paginate = require("../../utils/paginate");
 const { shiftValidation } = require("../../validations/shiftValidation"); // You need to create this schema
 
@@ -10,7 +13,7 @@ const { shiftValidation } = require("../../validations/shiftValidation"); // You
 // 📍 Create a new shift
 //
 const createShift = tryCatch(async (req, res) => {
-  const { customerId } = req.body;
+  const customerId = req.user.id;
 
   const customer = await Customer.findById(customerId);
   if (!customer) {

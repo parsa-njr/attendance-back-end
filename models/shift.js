@@ -7,7 +7,7 @@ const timeSchema = new mongoose.Schema({
 
 const shiftDaySchema = new mongoose.Schema({
   day: { type: Number, required: true },
-  isOffDay: { type: Boolean, default: false }, 
+  isOffDay: { type: Boolean, default: false },
   time: { type: [timeSchema], required: true },
 });
 
@@ -17,9 +17,15 @@ const exceptionDaySchema = new mongoose.Schema({
   time: { type: [timeSchema], required: true },
 });
 
+
+
 const shiftSchema = new mongoose.Schema(
   {
-    customer: { type: String, required: true },
+    customer: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Customer",
+      required: true,
+    },
     shiftName: { type: String, required: true },
     startDate: { type: Date, required: true },
     endDate: { type: Date, required: true },

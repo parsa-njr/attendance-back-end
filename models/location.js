@@ -1,11 +1,11 @@
 const mongoose = require("mongoose");
 
-const LocationSchema = new mongoose.Schema(
+const locationSchema = new mongoose.Schema(
   {
     customer: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Customer",
       required: true,
-      trim: true,
     },
     name: {
       type: String,
@@ -28,4 +28,6 @@ const LocationSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Location", LocationSchema);
+const Location = mongoose.model("Location", locationSchema);
+
+module.exports =  Location ;

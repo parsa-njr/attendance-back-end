@@ -58,10 +58,6 @@ const exceptionDaySchema = Joi.object({
 
 // Main shift validation schema
 const shiftValidation = Joi.object({
-  customerId: Joi.string().required().messages({
-    "string.empty": "شناسه مشتری الزامی است",
-    "any.required": "شناسه مشتری الزامی است",
-  }),
   shiftName: Joi.string().min(2).max(50).required().messages({
     "string.empty": "نام شیفت الزامی است",
     "string.min": "نام شیفت باید حداقل ۲ حرف باشد",

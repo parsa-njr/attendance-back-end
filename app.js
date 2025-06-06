@@ -9,6 +9,7 @@ const aiRoute = require("./routes/aiRoute");
 const userRoute = require("./routes/Customer/userRoute");
 const customerProfileRoute = require("./routes/Customer/profileRoute");
 const locationRoute = require("./routes/Customer/locationRoute");
+const userAttendanceRoute = require("./routes/User/attendanceRoute");
 const shiftRoute = require("./routes/Customer/shiftRoute");
 const notFound = require("./middleware/notFound");
 const errorHandler = require("./middleware/errorHandler");
@@ -41,6 +42,7 @@ app.use(
   categoryRoute,
   aiRoute,
   userRoute,
+  userAttendanceRoute,
   customerProfileRoute,
   locationRoute,
   shiftRoute
