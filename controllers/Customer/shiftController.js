@@ -1,63 +1,64 @@
 const { Customer } = require("../../models/customer");
-const Location = require("../../models/location");
+const Shift = require("../../models/shift");
 const { tryCatch } = require("../../utils/tryCatch");
 const {
   NotFoundError,
   UnprocessableEntityError,
 } = require("../../errors/customError");
 const paginate = require("../../utils/paginate");
-const { locationValidation } = require("../../validations/locationValidation");
+const { shiftValidation } = require("../../validations/shiftValidation"); // You need to create this schema
 
 //
 // ────────────────────────────────────────────────────────────────────────────────
-// 📍 Create a new location
+// 📍 Create a new shift
 //
-const createLocation = tryCatch(async (req, res) => {
-  console.log("req ::: ", req);
-
-  // Step 1: Check if the customer exists
+const createShift = tryCatch(async (req, res) => {
   const customerId = req.user.id;
+
   const customer = await Customer.findById(customerId);
   if (!customer) {
-    throw new NotFoundError("چنین کاربری یافت نشد");
+    throw new NotFoundError("چنین مشتری‌ای یافت نشد");
   }
 
-  // Step 2: Validate request body with Joi
-  const { error } = locationValidation.validate(req.body);
+  const { error } = shiftValidation.validate(req.body);
   if (error) {
     const errorMessage = error.details.map((e) => e.message).join(" ,");
     throw new UnprocessableEntityError(errorMessage);
   }
 
-  // Step 3: Destructure validated fields
-  const { name, latitude, longitude, range } = req.body;
+  const {
+    shiftName,
+    startDate,
+    endDate,
+    formalHolidays,
+    shiftDays,
+    exceptionDays,
+  } = req.body;
 
-
-  // Step 4: Create the new location
-  await Location.create({
+  await Shift.create({
     customer: customerId,
-    name,
-    latitude,
-    longitude,
-    range,
+    shiftName,
+    startDate,
+    endDate,
+    formalHolidays,
+    shiftDays,
+    exceptionDays,
   });
 
-  // Step 5: Send success response
   res.status(201).json({
     success: true,
-    message: "مکان با موفقیت ایجاد شد",
+    message: "شیفت با موفقیت ایجاد شد",
   });
 });
 
 //
 // ────────────────────────────────────────────────────────────────────────────────
-// 📍 Get all locations for the current logged-in customer (with pagination)
+// 📍 Get all shifts for current logged-in customer
 //
-const getAllLocations = tryCatch(async (req, res) => {
+const getAllShifts = tryCatch(async (req, res) => {
   const customerId = req.user.id;
 
-  // Paginate locations filtered by customer
-  const { data, pagination } = await paginate(req, Location, {
+  const { data, pagination } = await paginate(req, Shift, {
     customer: customerId,
   });
 
@@ -69,103 +70,107 @@ const getAllLocations = tryCatch(async (req, res) => {
           data,
         }
       : data,
-    message: "",
   });
 });
 
 //
 // ────────────────────────────────────────────────────────────────────────────────
-// 📍 Get a single location by ID
+// 📍 Get a single shift
 //
-const getLocationById = tryCatch(async (req, res) => {
+const getShiftById = tryCatch(async (req, res) => {
   const { id } = req.params;
 
-  // Find location by ID
-  const location = await Location.findById(id);
-  if (!location) {
-    throw new NotFoundError("محل مورد نظر یافت نشد");
+  const shift = await Shift.findById(id);
+  if (!shift) {
+    throw new NotFoundError("شیفت یافت نشد");
   }
 
   res.status(200).json({
     success: true,
-    data: location,
+    data: shift,
   });
 });
 
 //
 // ────────────────────────────────────────────────────────────────────────────────
-// 📍 Update a location
+// 📍 Update a shift
 //
-const updateLocation = tryCatch(async (req, res) => {
-  const locationId = req.params.id;
-  const customerId = req.user.id;
+const updateShift = tryCatch(async (req, res) => {
+  const { id } = req.params;
+  const { customerId } = req.body;
 
-  // Step 1: Check if customer exists
   const customer = await Customer.findById(customerId);
   if (!customer) {
-    throw new NotFoundError("چنین کاربری یافت نشد");
+    throw new NotFoundError("چنین مشتری‌ای یافت نشد");
   }
 
-  // Step 2: Ensure the location belongs to the customer
-  const location = await Location.findOne({
-    _id: locationId,
-    customer: customerId,
-  });
-  if (!location) {
-    throw new NotFoundError("لوکیشن یافت نشد");
+  const shift = await Shift.findOne({ _id: id, customer: customerId });
+  if (!shift) {
+    throw new NotFoundError("شیفت یافت نشد");
   }
 
-  // Step 3: Validate request data
-  const { error } = locationValidation.validate(req.body);
+  const { error } = shiftValidation.validate(req.body);
   if (error) {
     const errorMessage = error.details.map((e) => e.message).join(" ,");
     throw new UnprocessableEntityError(errorMessage);
   }
 
-  // Step 4: Update the location
-  const { name, latitude, longitude, range } = req.body;
-  const updated = await Location.findByIdAndUpdate(
-    { _id: locationId, customer: customerId },
-    { $set: { name, latitude, longitude, range } },
+  const {
+    shiftName,
+    startDate,
+    endDate,
+    formalHolidays,
+    shiftDays,
+    exceptionDays,
+  } = req.body;
+
+  await Shift.findByIdAndUpdate(
+    { _id: id, customer: customerId },
+    {
+      $set: {
+        shiftName,
+        startDate,
+        endDate,
+        formalHolidays,
+        shiftDays,
+        exceptionDays,
+      },
+    },
     { new: true, runValidators: true }
   );
 
-  if (!updated) {
-    throw new NotFoundError("محل مورد نظر یافت نشد");
-  }
-
   res.status(200).json({
     success: true,
-    message: "لوکیشن با موفقیت به‌روزرسانی شد",
+    message: "شیفت با موفقیت به‌روزرسانی شد",
   });
 });
 
 //
 // ────────────────────────────────────────────────────────────────────────────────
-// 📍 Delete a location
+// 📍 Delete a shift
 //
-const deleteLocation = async (req, res) => {
+const deleteShift = tryCatch(async (req, res) => {
   const { id } = req.params;
 
-  // Find and delete the location
-  const deleted = await Location.findByIdAndDelete(id);
+  const deleted = await Shift.findByIdAndDelete(id);
   if (!deleted) {
-    throw new NotFoundError("محل مورد نظر یافت نشد");
+    throw new NotFoundError("شیفت یافت نشد");
   }
 
-  res
-    .status(200)
-    .json({ success: true, message: "محل مورد نظر با موفقیت حذف شد" });
-};
+  res.status(200).json({
+    success: true,
+    message: "شیفت با موفقیت حذف شد",
+  });
+});
 
 //
 // ────────────────────────────────────────────────────────────────────────────────
-// 📤 Export controllers
+// 📤 Export
 //
 module.exports = {
-  createLocation,
-  getAllLocations,
-  getLocationById,
-  updateLocation,
-  deleteLocation,
+  createShift,
+  getAllShifts,
+  getShiftById,
+  updateShift,
+  deleteShift,
 };

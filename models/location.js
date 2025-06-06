@@ -1,7 +1,12 @@
 const mongoose = require("mongoose");
 
-const LocationSchema = new mongoose.Schema(
+const locationSchema = new mongoose.Schema(
   {
+    customer: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Customer",
+      required: true,
+    },
     name: {
       type: String,
       required: true,
@@ -16,11 +21,13 @@ const LocationSchema = new mongoose.Schema(
       required: true,
     },
     range: {
-      type: Number, 
+      type: Number,
       required: true,
     },
   },
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Location", LocationSchema);
+const Location = mongoose.model("Location", locationSchema);
+
+module.exports =  Location ;

@@ -11,6 +11,8 @@ const customerProfileRoute = require("./routes/Customer/profileRoute");
 const userRequestRoute = require("./routes/User/requestsRoute");
 const customerRequestRoute = require("./routes/Customer/requestRoute");
 const locationRoute = require("./routes/Customer/locationRoute");
+const userAttendanceRoute = require("./routes/User/attendanceRoute");
+const shiftRoute = require("./routes/Customer/shiftRoute");
 const notFound = require("./middleware/notFound");
 const errorHandler = require("./middleware/errorHandler");
 const connectDB = require("./db/connect");
@@ -39,14 +41,15 @@ app.use(
 app.use(
   "/api/v1",
   categoryRoute,
-
   aiRoute,
-
   userRoute,
+  userAttendanceRoute,
   customerProfileRoute,
   locationRoute,
   userRequestRoute,
-  customerRequestRoute
+  customerRequestRoute,
+  shiftRoute
+
 );
 
 app.use("/api/v1/auth", authRoute);
