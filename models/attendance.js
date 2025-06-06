@@ -6,7 +6,7 @@ const sessionSchema = new mongoose.Schema({
 }, { _id: false });
 
 const attendanceSchema = new mongoose.Schema({
-  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   date: { type: Date, required: true },
   sessions: [sessionSchema],
 }, { timestamps: true });
