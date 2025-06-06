@@ -54,7 +54,6 @@ customerSchema.pre("save", async function (next) {
   next();
 });
 
-
 customerSchema.statics.mobileLogin = async function (phone, code) {
   const user = await this.findOne({ phone });
   if (user) {
