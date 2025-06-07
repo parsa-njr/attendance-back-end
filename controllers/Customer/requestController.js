@@ -1,6 +1,6 @@
-const { Request } = require("../../models/request");
-const { User } = require("../../models/user");
-const { Customer } = require("../../models/customer");
+const Request  = require("../../models/request");
+const User  = require("../../models/user");
+const Customer  = require("../../models/customer");
 const { tryCatch } = require("../../utils/tryCatch");
 const {
   updateRequestStatusValidation,
@@ -18,7 +18,7 @@ const getRequests = tryCatch(async (req, res) => {
     reviewedBy: customerId,
   });
 
-  res.json({
+  res.status(200).json({
     success: true,
     data: pagination
       ? {
@@ -26,7 +26,6 @@ const getRequests = tryCatch(async (req, res) => {
           ...pagination,
         }
       : data,
-    message: "",
   });
 });
 
@@ -63,9 +62,10 @@ if (existingRequest.status !== "pending") {
     { new: true, runValidators: true }
   );
 
-  res.status(201).json({
+  res.status(200).json({
     updatedRequest,
     success: true,
+    message:"تغییر وضعیت با موفقیت انجام شد"
   });
 });
 

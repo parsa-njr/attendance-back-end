@@ -1,5 +1,5 @@
-const { User } = require("../../models/user");
-const { Customer } = require("../../models/customer");
+const User  = require("../../models/user");
+const Customer  = require("../../models/customer");
 const {
   ConflictError,
   NotFoundError,
@@ -59,11 +59,6 @@ const editUser = tryCatch(async (req, res) => {
   const customerId = req.user.id;
   const userId = req.params.userId;
 
-  const user = await User.findOne({ _id: userId, employer: customerId });
-  if (!user) {
-    throw new NotFoundError("کاربر یافت نشد یا دسترسی ندارید");
-  }
-
   const { error } = userValidation.validate(req.body);
   if (error) {
     const errorMessage = error.details.map((e) => e.message).join(" ,");
@@ -72,36 +67,40 @@ const editUser = tryCatch(async (req, res) => {
 
   const { name, phone, password } = req.body;
 
-  // Check for phone uniqueness excluding current user
-  const existingUser = await User.findOne({ phone, _id: { $ne: userId } });
-  if (existingUser) {
+  // Ensure phone is unique (excluding this user)
+  const phoneTaken = await User.findOne({ phone, _id: { $ne: userId } });
+  if (phoneTaken) {
     throw new ConflictError("این شماره قبلاً استفاده شده است");
   }
 
+  // Prepare updated fields
   const updatedFields = { name, phone };
 
-  // Update password if inserted
   if (password) {
     const salt = await bcrypt.genSalt(10);
     updatedFields.password = await bcrypt.hash(password, salt);
   }
 
-  // Update image if uploaded
   if (req.file) {
     updatedFields.image = `/uploads/profile-images/${req.file.filename}`;
   }
 
-  await User.findOneAndUpdate(
+  const updatedUser = await User.findOneAndUpdate(
     { _id: userId, employer: customerId },
     { $set: updatedFields },
     { new: true, runValidators: true }
   );
+
+  if (!updatedUser) {
+    throw new NotFoundError("کاربر یافت نشد یا دسترسی ندارید");
+  }
 
   res.status(200).json({
     success: true,
     message: "کاربر با موفقیت به‌روزرسانی شد",
   });
 });
+
 
 const deleteUser = tryCatch(async (req, res) => {
   const customerId = req.user.id;
@@ -131,7 +130,7 @@ const getUsers = tryCatch(async (req, res) => {
     employer: customerId,
   });
 
-  res.json({
+  res.status(200).json({
     success: true,
     data: pagination
       ? {
@@ -139,7 +138,6 @@ const getUsers = tryCatch(async (req, res) => {
           ...pagination,
         }
       : data,
-    message: "",
   });
 });
 

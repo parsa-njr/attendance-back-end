@@ -3,7 +3,6 @@ const app = express();
 const path = require("path");
 const port = process.env.PORT || 8080;
 
-const categoryRoute = require("./routes/categoryRoute");
 const authRoute = require("./routes/Auth/authRoute");
 const aiRoute = require("./routes/aiRoute");
 const userRoute = require("./routes/Customer/userRoute");
@@ -40,7 +39,6 @@ app.use(
 
 app.use(
   "/api/v1",
-  categoryRoute,
   aiRoute,
   userRoute,
   userAttendanceRoute,

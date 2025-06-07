@@ -8,8 +8,8 @@ const multer = require("multer")
 const storage = multer.memoryStorage()
 const upload = multer({storage : storage})
 
-router.post("/admin/edit-profile" , requireRole("customer") , uploadProfileImage.single("profileImage")  , profileController.editProfile)
-router.get("/admin/get-profile" , requireRole("customer")   , profileController.getProfile)
+router.put("/customer/profile" , requireRole("customer") , uploadProfileImage.single("profileImage")  , profileController.editProfile)
+router.get("/customer/profile" , requireRole("customer")   , profileController.getProfile)
 
 
 

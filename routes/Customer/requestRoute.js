@@ -8,8 +8,8 @@ const multer = require("multer")
 const storage = multer.memoryStorage()
 const upload = multer({storage : storage})
 
-router.get("/admin/get-requests" , requireRole("customer")  , requestController.getRequests)
-router.post("/admin/update-request/:requestId" , requireRole("customer")  , requestController.updateRequestStatus)
+router.get("/customer/requests" , requireRole("customer")  , requestController.getRequests)
+router.post("/customer/requests/:requestId" , requireRole("customer")  , requestController.updateRequestStatus)
 
 
 

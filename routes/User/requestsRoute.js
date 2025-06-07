@@ -8,7 +8,7 @@ const multer = require("multer")
 const storage = multer.memoryStorage()
 const upload = multer({storage : storage})
 
-router.post("/user/create-request" , requireRole("user")  , requestController.createRequest)
+router.post("/user/requests" , requireRole("user")  , requestController.createRequest)
 
 
 

@@ -1,4 +1,4 @@
-const { Customer } = require("../../models/customer");
+const Customer  = require("../../models/customer");
 const Location = require("../../models/location");
 const { tryCatch } = require("../../utils/tryCatch");
 const {
@@ -61,7 +61,7 @@ const getAllLocations = tryCatch(async (req, res) => {
     customer: customerId,
   });
 
-  res.json({
+  res.status(200).json({
     success: true,
     data: pagination
       ? {
@@ -69,7 +69,6 @@ const getAllLocations = tryCatch(async (req, res) => {
           data,
         }
       : data,
-    message: "",
   });
 });
 
@@ -78,10 +77,10 @@ const getAllLocations = tryCatch(async (req, res) => {
 // 📍 Get a single location by ID
 //
 const getLocationById = tryCatch(async (req, res) => {
-  const { id } = req.params;
+  const locationId = req.params?.locationId;
 
   // Find location by ID
-  const location = await Location.findById(id);
+  const location = await Location.findById(locationId);
   if (!location) {
     throw new NotFoundError("محل مورد نظر یافت نشد");
   }
@@ -97,7 +96,7 @@ const getLocationById = tryCatch(async (req, res) => {
 // 📍 Update a location
 //
 const updateLocation = tryCatch(async (req, res) => {
-  const locationId = req.params.id;
+  const locationId = req.params.locationId;
   const customerId = req.user.id;
 
   // Step 1: Check if customer exists
@@ -106,32 +105,24 @@ const updateLocation = tryCatch(async (req, res) => {
     throw new NotFoundError("چنین کاربری یافت نشد");
   }
 
-  // Step 2: Ensure the location belongs to the customer
-  const location = await Location.findOne({
-    _id: locationId,
-    customer: customerId,
-  });
-  if (!location) {
-    throw new NotFoundError("لوکیشن یافت نشد");
-  }
 
-  // Step 3: Validate request data
+  // Step 2: Validate request data
   const { error } = locationValidation.validate(req.body);
   if (error) {
     const errorMessage = error.details.map((e) => e.message).join(" ,");
     throw new UnprocessableEntityError(errorMessage);
   }
 
-  // Step 4: Update the location
+  // Step 3: Update the location
   const { name, latitude, longitude, range } = req.body;
-  const updated = await Location.findByIdAndUpdate(
+  const updated = await Location.findOneAndUpdate(
     { _id: locationId, customer: customerId },
     { $set: { name, latitude, longitude, range } },
     { new: true, runValidators: true }
   );
 
   if (!updated) {
-    throw new NotFoundError("محل مورد نظر یافت نشد");
+    throw new NotFoundError("لوکیشن مورد نظر یافت نشد");
   }
 
   res.status(200).json({
@@ -145,10 +136,10 @@ const updateLocation = tryCatch(async (req, res) => {
 // 📍 Delete a location
 //
 const deleteLocation = async (req, res) => {
-  const { id } = req.params;
+  const locationId = req.params?.locationId;
 
   // Find and delete the location
-  const deleted = await Location.findByIdAndDelete(id);
+  const deleted = await Location.findByIdAndDelete(locationId);
   if (!deleted) {
     throw new NotFoundError("محل مورد نظر یافت نشد");
   }

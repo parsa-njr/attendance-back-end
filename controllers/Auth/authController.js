@@ -1,5 +1,5 @@
-const { Customer } = require("../../models/customer");
-const { User } = require("../../models/user");
+const Customer  = require("../../models/customer");
+const User  = require("../../models/user");
 const moment = require("moment");
 const jwt = require("jsonwebtoken");
 const { tryCatch } = require("../../utils/tryCatch");

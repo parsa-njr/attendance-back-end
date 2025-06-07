@@ -1,6 +1,6 @@
-const { Request } = require("../../models/request");
-const { User } = require("../../models/user");
-const { Customer } = require("../../models/customer");
+const Request  = require("../../models/request");
+const User  = require("../../models/user");
+const Customer  = require("../../models/customer");
 const { tryCatch } = require("../../utils/tryCatch");
 const { requestValidation } = require("../../validations/requestValidation");
 const {

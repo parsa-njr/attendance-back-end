@@ -67,4 +67,4 @@ customerSchema.statics.mobileLogin = async function (phone, code) {
 
 const Customer = mongoose.model("Customer", customerSchema);
 
-module.exports = { Customer };
+module.exports = Customer;

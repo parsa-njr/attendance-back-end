@@ -1,4 +1,4 @@
-const { Customer } = require("../../models/customer");
+const Customer = require("../../models/customer");
 const Shift = require("../../models/shift");
 const { tryCatch } = require("../../utils/tryCatch");
 const {
@@ -62,7 +62,7 @@ const getAllShifts = tryCatch(async (req, res) => {
     customer: customerId,
   });
 
-  res.json({
+  res.status(200).json({
     success: true,
     data: pagination
       ? {
@@ -78,9 +78,9 @@ const getAllShifts = tryCatch(async (req, res) => {
 // 📍 Get a single shift
 //
 const getShiftById = tryCatch(async (req, res) => {
-  const { id } = req.params;
+  const shiftId = req.params?.shiftId;
 
-  const shift = await Shift.findById(id);
+  const shift = await Shift.findById(shiftId);
   if (!shift) {
     throw new NotFoundError("شیفت یافت نشد");
   }
@@ -96,17 +96,12 @@ const getShiftById = tryCatch(async (req, res) => {
 // 📍 Update a shift
 //
 const updateShift = tryCatch(async (req, res) => {
-  const { id } = req.params;
+  const shiftId = req.params?.shiftId;
   const { customerId } = req.body;
 
   const customer = await Customer.findById(customerId);
   if (!customer) {
     throw new NotFoundError("چنین مشتری‌ای یافت نشد");
-  }
-
-  const shift = await Shift.findOne({ _id: id, customer: customerId });
-  if (!shift) {
-    throw new NotFoundError("شیفت یافت نشد");
   }
 
   const { error } = shiftValidation.validate(req.body);
@@ -115,29 +110,24 @@ const updateShift = tryCatch(async (req, res) => {
     throw new UnprocessableEntityError(errorMessage);
   }
 
-  const {
-    shiftName,
-    startDate,
-    endDate,
-    formalHolidays,
-    shiftDays,
-    exceptionDays,
-  } = req.body;
-
-  await Shift.findByIdAndUpdate(
-    { _id: id, customer: customerId },
+  const updatedShift = await Shift.findOneAndUpdate(
+    { _id: shiftId, customer: customerId },
     {
       $set: {
-        shiftName,
-        startDate,
-        endDate,
-        formalHolidays,
-        shiftDays,
-        exceptionDays,
+        shiftName: req.body.shiftName,
+        startDate: req.body.startDate,
+        endDate: req.body.endDate,
+        formalHolidays: req.body.formalHolidays,
+        shiftDays: req.body.shiftDays,
+        exceptionDays: req.body.exceptionDays,
       },
     },
     { new: true, runValidators: true }
   );
+
+  if (!updatedShift) {
+    throw new NotFoundError("شیفت یافت نشد");
+  }
 
   res.status(200).json({
     success: true,
@@ -150,9 +140,9 @@ const updateShift = tryCatch(async (req, res) => {
 // 📍 Delete a shift
 //
 const deleteShift = tryCatch(async (req, res) => {
-  const { id } = req.params;
+  const shiftId = req.params?.shiftId;
 
-  const deleted = await Shift.findByIdAndDelete(id);
+  const deleted = await Shift.findByIdAndDelete(shiftId);
   if (!deleted) {
     throw new NotFoundError("شیفت یافت نشد");
   }
@@ -165,8 +155,7 @@ const deleteShift = tryCatch(async (req, res) => {
 
 //
 // ────────────────────────────────────────────────────────────────────────────────
-// 📤 Export
-//
+
 module.exports = {
   createShift,
   getAllShifts,

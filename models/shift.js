@@ -17,8 +17,6 @@ const exceptionDaySchema = new mongoose.Schema({
   time: { type: [timeSchema], required: true },
 });
 
-
-
 const shiftSchema = new mongoose.Schema(
   {
     customer: {

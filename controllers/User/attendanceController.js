@@ -47,7 +47,7 @@ const checkIn = tryCatch(async (req, res) => {
 
   await attendance.save();
   res
-    .status(200)
+    .status(201)
     .json({ success: true, message: "ورود با موفقیت ثبت شد", attendance });
 });
 
@@ -92,7 +92,7 @@ const checkOut = tryCatch(async (req, res) => {
 
   await attendance.save();
   res
-    .status(200)
+    .status(201)
     .json({ success: true, message: "خروج با موفقیت ثبت شد", attendance });
 });
 
