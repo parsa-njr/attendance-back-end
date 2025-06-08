@@ -15,7 +15,7 @@ const {
 const getRequests = tryCatch(async (req, res) => {
   const customerId = req.user.id;
   const { data, pagination } = await paginate(req, Request, {
-    reviewedBy: customerId,
+    customer: customerId,
   });
 
   res.status(200).json({
@@ -45,7 +45,7 @@ const updateRequestStatus = tryCatch(async (req, res) => {
   // Check existing request
   const existingRequest = await Request.findOne({
     _id: requestId,
-    reviewedBy: customerId,
+    customer: customerId,
   });
 
   // Prevent changing status if it's already accepted or rejected

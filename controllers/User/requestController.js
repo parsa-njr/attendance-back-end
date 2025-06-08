@@ -44,7 +44,7 @@ const createRequest = tryCatch(async (req, res) => {
     requestType,
     startDate,
     endDate,
-    reviewedBy: user.employer,
+    customer: user.employer,
     note: note || "",
     status: "pending",
   });

@@ -1,6 +1,6 @@
 const Joi = require("joi");
 
-const userValidation = Joi.object({
+const updateUserValidation = Joi.object({
   name: Joi.string().min(2).max(50).required().messages({
     "string.empty": "نام الزامی است",
     "string.min": "نام باید حداقل ۲ حرف باشد",
@@ -17,11 +17,10 @@ const userValidation = Joi.object({
       "any.required": "شماره تلفن الزامی است",
     }),
 
-  password: Joi.string().min(6).max(30).required().messages({
+  password: Joi.string().min(6).max(30).messages({
     "string.empty": "رمز عبور الزامی است",
     "string.min": "رمز عبور باید حداقل ۶ کاراکتر باشد",
     "string.max": "رمز عبور نباید بیشتر از ۳۰ کاراکتر باشد",
-    "any.required": "رمز عبور الزامی است",
   }),
 
   location: Joi.string().length(24).required().messages({
@@ -38,5 +37,5 @@ const userValidation = Joi.object({
 });
 
 module.exports = {
-  userValidation,
+  updateUserValidation,
 };
