@@ -20,9 +20,19 @@ const userSchema = new mongoose.Schema({
     default: null,
     required: false,
   },
-  employer: {
+  customer: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Customer",
+  },
+  location: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Location",
+    required: true,
+  },
+  shift: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Shift",
+    required: true,
   },
   createdAt: {
     type: Date,

@@ -1,11 +1,16 @@
-const User  = require("../../models/user");
-const Customer  = require("../../models/customer");
+const User = require("../../models/user");
+const Location = require("../../models/location");
+const Shift = require("../../models/shift");
+const Customer = require("../../models/customer");
 const {
   ConflictError,
   NotFoundError,
   UnprocessableEntityError,
 } = require("../../errors/customError");
 const { userValidation } = require("../../validations/userValidation");
+const {
+  updateUserValidation,
+} = require("../../validations/updateUserValidation");
 const { tryCatch } = require("../../utils/tryCatch");
 const paginate = require("../../utils/paginate");
 const bcrypt = require("bcrypt");
@@ -13,7 +18,7 @@ const bcrypt = require("bcrypt");
 const createUser = tryCatch(async (req, res) => {
   const customerId = req.user.id;
 
-  const customer = await Customer.findOne({_id : customerId});
+  const customer = await Customer.findOne({ _id: customerId });
   if (!customer) {
     throw new NotFoundError("چنین کاربری یافت نشد");
   }
@@ -24,26 +29,36 @@ const createUser = tryCatch(async (req, res) => {
     throw new UnprocessableEntityError(errorMessage);
   }
 
-  const { name, phone, password } = req.body;
+  const { name, phone, shift, location, password } = req.body;
 
   const existingUser = await User.findOne({ phone });
+  const userLocation = await Location.findOne({
+    _id: location,
+    customer: customerId,
+  });
+  const userShift = await Shift.findOne({ _id: shift, customer: customerId });
   if (existingUser) {
     throw new ConflictError("این شماره قبلاً استفاده شده است");
+  }
+
+  if (!userLocation) {
+    throw new NotFoundError("مکان معتبر یافت نشد یا متعلق به شما نیست");
+  }
+
+  if (!userShift) {
+    throw new NotFoundError("شیفت معتبر یافت نشد یا متعلق به شما نیست");
   }
 
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(password, salt);
 
-  const image = req.file
-    ? `/uploads/profile-images/${req.file.filename}`
-    : null;
-
   const newUser = await User.create({
     name,
     phone,
-    profileImage: image,
+    shift: userShift,
+    location: userLocation,
     password: hashedPassword,
-    employer: customerId,
+    customer: customerId,
   });
 
   customer.users.push(newUser._id);
@@ -59,34 +74,48 @@ const editUser = tryCatch(async (req, res) => {
   const customerId = req.user.id;
   const userId = req.params.userId;
 
-  const { error } = userValidation.validate(req.body);
+  const { error } = updateUserValidation.validate(req.body);
   if (error) {
     const errorMessage = error.details.map((e) => e.message).join(" ,");
     throw new UnprocessableEntityError(errorMessage);
   }
 
-  const { name, phone, password } = req.body;
+  const { name, phone, password, location, shift } = req.body;
 
   // Ensure phone is unique (excluding this user)
+  const userLocation = await Location.findOne({
+    _id: location,
+    customer: customerId,
+  });
+
+  const userShift = await Shift.findOne({
+    _id: shift,
+    customer: customerId,
+  });
+
   const phoneTaken = await User.findOne({ phone, _id: { $ne: userId } });
   if (phoneTaken) {
     throw new ConflictError("این شماره قبلاً استفاده شده است");
   }
 
+  if (!userLocation) {
+    throw new NotFoundError("مکان معتبر یافت نشد یا متعلق به شما نیست");
+  }
+
+  if (!userShift) {
+    throw new NotFoundError("شیفت معتبر یافت نشد یا متعلق به شما نیست");
+  }
+
   // Prepare updated fields
-  const updatedFields = { name, phone };
+  const updatedFields = { name, phone, location, shift };
 
   if (password) {
     const salt = await bcrypt.genSalt(10);
     updatedFields.password = await bcrypt.hash(password, salt);
   }
 
-  if (req.file) {
-    updatedFields.image = `/uploads/profile-images/${req.file.filename}`;
-  }
-
   const updatedUser = await User.findOneAndUpdate(
-    { _id: userId, employer: customerId },
+    { _id: userId, customer: customerId },
     { $set: updatedFields },
     { new: true, runValidators: true }
   );
@@ -101,12 +130,11 @@ const editUser = tryCatch(async (req, res) => {
   });
 });
 
-
 const deleteUser = tryCatch(async (req, res) => {
   const customerId = req.user.id;
   const userId = req.params.userId;
 
-  const user = await User.findOne({ _id: userId, employer: customerId });
+  const user = await User.findOne({ _id: userId, customer: customerId });
 
   if (!user) {
     throw new NotFoundError("کاربر یافت نشد یا دسترسی ندارید");
@@ -126,9 +154,15 @@ const deleteUser = tryCatch(async (req, res) => {
 
 const getUsers = tryCatch(async (req, res) => {
   const customerId = req.user.id;
-  const { data, pagination } = await paginate(req, User, {
-    employer: customerId,
-  });
+
+  // Pass the populate fields as the 4th argument to paginate
+  const { data, pagination } = await paginate(
+    req,
+    User,
+    { customer: customerId },
+    { createdAt: -1 },
+    [{ path: "location" }, { path: "shift" }]
+  );
 
   res.status(200).json({
     success: true,

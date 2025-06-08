@@ -29,7 +29,7 @@ const RequestSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
-    reviewedBy: {
+    customer: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Customer", // مدیر بررسی‌کننده
       default: null,

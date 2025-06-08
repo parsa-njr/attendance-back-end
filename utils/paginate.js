@@ -1,11 +1,12 @@
-// utils/paginate.js
-const paginate = async (req , model, filter = {}, sort = { createdAt: -1 }) => {
+const paginate = async (req, model, filter = {}, sort = { createdAt: -1 }, populate = "") => {
   const page = parseInt(req.query.page);
   const perPage = parseInt(req.query.per_page);
 
   // If no pagination requested, return all results
   if (!req.query.page && !req.query.per_page) {
-    const all = await model.find(filter).sort(sort).lean();
+    let query = model.find(filter).sort(sort);
+    if (populate) query = query.populate(populate);
+    const all = await query.lean();
     return {
       data: all,
       pagination: null,
@@ -17,7 +18,11 @@ const paginate = async (req , model, filter = {}, sort = { createdAt: -1 }) => {
   const skip = (currentPage - 1) * limit;
 
   const total = await model.countDocuments(filter);
-  const results = await model.find(filter).sort(sort).skip(skip).limit(limit).lean();
+
+  let query = model.find(filter).sort(sort).skip(skip).limit(limit);
+  if (populate) query = query.populate(populate);
+
+  const results = await query.lean();
 
   const lastPage = Math.ceil(total / limit);
 
