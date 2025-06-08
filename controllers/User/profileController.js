@@ -10,7 +10,7 @@ const { tryCatch } = require("../../utils/tryCatch");
 const bcrypt = require("bcrypt");
 
 const editProfile = tryCatch(async (req, res) => {
-  const customerId = req.user.id;
+  const userId = req.user.id;
 
   const { error } = profileValidation.validate(req.body);
   if (error) {
@@ -19,30 +19,28 @@ const editProfile = tryCatch(async (req, res) => {
   }
 
   const { name, phone, password } = req.body;
+  const updatedFields = { name, phone };
 
-  // Check for phone uniqueness excluding current user
-  const existingCustomer = await User.findOne({ phone });
+  // Check if the phone exists in customers
+  const existingCustomer = await Customer.findOne({ phone });
   if (existingCustomer) {
     throw new ConflictError(
       "این شماره قبلاً توسط یک کاربر دیگر استفاده شده است"
     );
   }
-  const updatedFields = { name, phone, password };
 
-  // Update password if inserted
   if (password) {
     const salt = await bcrypt.genSalt(10);
     updatedFields.password = await bcrypt.hash(password, salt);
   }
 
-  // Update image if uploaded
   if (req.file) {
     updatedFields.profileImage = `/uploads/profile-images/${req.file.filename}`;
   }
 
   try {
-    await Customer.findOneAndUpdate(
-      { _id: customerId },
+    await User.findOneAndUpdate(
+      { _id: userId },
       { $set: updatedFields },
       { new: true, runValidators: true }
     );
@@ -67,16 +65,16 @@ const editProfile = tryCatch(async (req, res) => {
 });
 
 const getProfile = tryCatch(async (req, res) => {
-  const customerId = req.user.id;
+  const userId = req.user.id;
 
-  const customer = await Customer.findOne({ _id: customerId });
+  const user = await User.findOne({ _id: userId });
 
-  if (!customer) {
+  if (!user) {
     throw new NotFoundError("چنین کاربری یافت نشد");
   }
 
   res.status(200).json({
-    customer,
+    user,
     success: true,
   });
 });

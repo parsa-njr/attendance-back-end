@@ -7,6 +7,7 @@ const authRoute = require("./routes/Auth/authRoute");
 const aiRoute = require("./routes/aiRoute");
 const userRoute = require("./routes/Customer/userRoute");
 const customerProfileRoute = require("./routes/Customer/profileRoute");
+const userProfileRoute = require("./routes/User/profileRoute");
 const userRequestRoute = require("./routes/User/requestsRoute");
 const customerRequestRoute = require("./routes/Customer/requestRoute");
 const locationRoute = require("./routes/Customer/locationRoute");
@@ -46,8 +47,8 @@ app.use(
   locationRoute,
   userRequestRoute,
   customerRequestRoute,
-  shiftRoute
-
+  shiftRoute,
+  userProfileRoute
 );
 
 app.use("/api/v1/auth", authRoute);
