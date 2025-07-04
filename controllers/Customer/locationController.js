@@ -1,4 +1,4 @@
-const Customer  = require("../../models/customer");
+const Customer = require("../../models/customer");
 const Location = require("../../models/location");
 const { tryCatch } = require("../../utils/tryCatch");
 const {
@@ -7,7 +7,7 @@ const {
 } = require("../../errors/customError");
 const paginate = require("../../utils/paginate");
 const { locationValidation } = require("../../validations/locationValidation");
-
+const { searchFilter } = require("../../utils/search filter");
 //
 // ────────────────────────────────────────────────────────────────────────────────
 // 📍 Create a new location
@@ -32,7 +32,6 @@ const createLocation = tryCatch(async (req, res) => {
   // Step 3: Destructure validated fields
   const { name, latitude, longitude, range } = req.body;
 
-
   // Step 4: Create the new location
   await Location.create({
     customer: customerId,
@@ -55,11 +54,18 @@ const createLocation = tryCatch(async (req, res) => {
 //
 const getAllLocations = tryCatch(async (req, res) => {
   const customerId = req.user.id;
+  const { search } = req.query;
 
-  // Paginate locations filtered by customer
-  const { data, pagination } = await paginate(req, Location, {
-    customer: customerId,
-  });
+  const searchQuery = searchFilter(search, ["name"]);
+
+  const { data, pagination } = await paginate(
+    req,
+    Location, // ✅ Correct model
+    searchQuery, // 3rd: search filter
+    { createdAt: -1 }, // 4th: sort
+    [], // 5th: no populate fields
+    { customer: customerId } // 6th: static filter
+  );
 
   res.status(200).json({
     success: true,
@@ -104,7 +110,6 @@ const updateLocation = tryCatch(async (req, res) => {
   if (!customer) {
     throw new NotFoundError("چنین کاربری یافت نشد");
   }
-
 
   // Step 2: Validate request data
   const { error } = locationValidation.validate(req.body);
