@@ -35,6 +35,8 @@ const updateRequestStatus = tryCatch(async (req, res) => {
 
   const { status } = req.body;
 
+  console.log('req ::::: ',req)
+
   const { error } = updateRequestStatusValidation.validate(req.body);
 
   if (error) {
@@ -47,6 +49,7 @@ const updateRequestStatus = tryCatch(async (req, res) => {
     _id: requestId,
     customer: customerId,
   });
+  console.log('existingRequest ::::: ',existingRequest)
 
   // Prevent changing status if it's already accepted or rejected
 if (existingRequest.status !== "pending") {

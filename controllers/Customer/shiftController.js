@@ -97,7 +97,7 @@ const getShiftById = tryCatch(async (req, res) => {
 //
 const updateShift = tryCatch(async (req, res) => {
   const shiftId = req.params?.shiftId;
-  const { customerId } = req.body;
+  const  customerId  = req.user.id;
 
   const customer = await Customer.findById(customerId);
   if (!customer) {

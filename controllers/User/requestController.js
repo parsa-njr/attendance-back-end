@@ -23,9 +23,9 @@ const createRequest = tryCatch(async (req, res) => {
   const user = await User.findById(userId);
 
   // Check for past dates
-  if (new Date(startDate) < new Date()) {
-    throw new UnprocessableEntityError("تاریخ شروع معتبر نمی باشد");
-  }
+  // if (new Date(startDate) < new Date()) {
+  //   throw new UnprocessableEntityError("تاریخ شروع معتبر نمی باشد");
+  // }
 
   // Check for overlapping requests
   const overlap = await Request.findOne({
@@ -44,7 +44,7 @@ const createRequest = tryCatch(async (req, res) => {
     requestType,
     startDate,
     endDate,
-    customer: user.employer,
+    customer: user.customer,
     note: note || "",
     status: "pending",
   });
