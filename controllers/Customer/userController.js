@@ -1,5 +1,6 @@
 const User = require("../../models/user");
 const Location = require("../../models/location");
+const { searchFilter } = require("../../utils/search filter");
 const Shift = require("../../models/shift");
 const Customer = require("../../models/customer");
 const {
@@ -153,15 +154,18 @@ const deleteUser = tryCatch(async (req, res) => {
 });
 
 const getUsers = tryCatch(async (req, res) => {
+  const { search } = req.query;
   const customerId = req.user.id;
 
-  // Pass the populate fields as the 4th argument to paginate
+  const searchQuery = searchFilter(search, ["name", "phone"]);
+
   const { data, pagination } = await paginate(
     req,
     User,
-    { customer: customerId },
+    searchQuery, // only the search part
     { createdAt: -1 },
-    [{ path: "location" }, { path: "shift" }]
+    [{ path: "location" }, { path: "shift" }],
+    { customer: customerId } // base filter passed here
   );
 
   res.status(200).json({

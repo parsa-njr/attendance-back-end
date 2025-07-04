@@ -1,10 +1,19 @@
-const paginate = async (req, model, filter = {}, sort = { createdAt: -1 }, populate = "") => {
+const paginate = async (
+  req,
+  model,
+  searchFilter = {},  // new: search-only filter
+  sort = { createdAt: -1 },
+  populate = "",
+  baseFilter = {}      // new: additional static filters (like customer)
+) => {
+  const combinedFilter = { ...baseFilter, ...searchFilter };
+
   const page = parseInt(req.query.page);
   const perPage = parseInt(req.query.per_page);
 
   // If no pagination requested, return all results
   if (!req.query.page && !req.query.per_page) {
-    let query = model.find(filter).sort(sort);
+    let query = model.find(combinedFilter).sort(sort);
     if (populate) query = query.populate(populate);
     const all = await query.lean();
     return {
@@ -17,9 +26,9 @@ const paginate = async (req, model, filter = {}, sort = { createdAt: -1 }, popul
   const limit = perPage || 10;
   const skip = (currentPage - 1) * limit;
 
-  const total = await model.countDocuments(filter);
+  const total = await model.countDocuments(combinedFilter);
 
-  let query = model.find(filter).sort(sort).skip(skip).limit(limit);
+  let query = model.find(combinedFilter).sort(sort).skip(skip).limit(limit);
   if (populate) query = query.populate(populate);
 
   const results = await query.lean();
@@ -62,7 +71,8 @@ const paginate = async (req, model, filter = {}, sort = { createdAt: -1 }, popul
       first_page_url: createPageUrl(1),
       last_page: lastPage,
       last_page_url: createPageUrl(lastPage),
-      next_page_url: currentPage < lastPage ? createPageUrl(currentPage + 1) : null,
+      next_page_url:
+        currentPage < lastPage ? createPageUrl(currentPage + 1) : null,
       prev_page_url: currentPage > 1 ? createPageUrl(currentPage - 1) : null,
       path: baseUrl,
       links,
