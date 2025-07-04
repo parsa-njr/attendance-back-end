@@ -12,7 +12,7 @@ const shiftDaySchema = new mongoose.Schema({
 });
 
 const exceptionDaySchema = new mongoose.Schema({
-  day: { type: Number, required: true },
+  // day: { type: Number, required: true },
   date: { type: Date, required: true },
   time: { type: [timeSchema], required: true },
 });

@@ -39,11 +39,11 @@ const shiftDaySchema = Joi.object({
 
 // Schema for each exceptionDay
 const exceptionDaySchema = Joi.object({
-  day: Joi.number()
-    .integer()
-    .messages({
-      "number.base": "روز باید عدد باشد",
-    }),
+  // day: Joi.number()
+  //   .integer()
+  //   .messages({
+  //     "number.base": "روز باید عدد باشد",
+  //   }),
   date: Joi.date().required().messages({
     "date.base": "تاریخ باید یک تاریخ معتبر باشد",
     "any.required": "تاریخ الزامی است",
@@ -51,9 +51,9 @@ const exceptionDaySchema = Joi.object({
   time: Joi.array().items(timeSchema).required().messages({
     "any.required": "زمان‌ها الزامی هستند",
   }),
-  isOffDay: Joi.boolean().default(false).messages({
-    "boolean.base": "offDay باید مقدار بولین باشد",
-  }),
+  // isOffDay: Joi.boolean().default(false).messages({
+  //   "boolean.base": "offDay باید مقدار بولین باشد",
+  // }),
 });
 
 // Main shift validation schema
