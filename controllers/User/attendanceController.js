@@ -1,16 +1,22 @@
-const { UnprocessableEntityError } = require("../../errors/customError");
+const {
+  UnprocessableEntityError,
+  NotFoundError,
+} = require("../../errors/customError");
 const Attendance = require("../../models/attendance");
 const Location = require("../../models/location");
+const User = require("../../models/user");
 const getDistanceMeters = require("../../utils/getDistanceMeters");
 const { tryCatch } = require("../../utils/tryCatch");
 
 const checkIn = tryCatch(async (req, res) => {
   const userId = req.user.id;
-  const { lat, lng, locationId } = req.body;
+  const { lat, lng } = req.body;
   const today = new Date();
   const todayStr = today.toISOString().slice(0, 10);
 
-  const location = await Location.findById(locationId);
+  const user = await User.findById(userId).populate("location");
+  const location = user.location;
+
   if (!location) {
     throw new NotFoundError("محل کار یافت نشد");
   }
@@ -51,14 +57,14 @@ const checkIn = tryCatch(async (req, res) => {
     .json({ success: true, message: "ورود با موفقیت ثبت شد", attendance });
 });
 
-
 const checkOut = tryCatch(async (req, res) => {
   const userId = req.user.id;
-  const { lat, lng, locationId } = req.body;
+  const { lat, lng } = req.body;
   const today = new Date();
   const todayStr = today.toISOString().slice(0, 10);
 
-  const location = await Location.findById(locationId);
+  const user = await User.findById(userId).populate("location");
+  const location = user.location;
   if (!location) {
     throw new NotFoundError("محل کار یافت نشد");
   }

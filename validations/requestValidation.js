@@ -20,7 +20,7 @@ const requestValidation = Joi.object({
     "date.greater": "تاریخ پایان باید بعد از تاریخ شروع باشد.",
   }),
 
-  note: Joi.string().allow("").messages({
+  userNote: Joi.string().allow("").messages({
     "string.base": "یادداشت باید از نوع رشته باشد.",
   }),
 });
