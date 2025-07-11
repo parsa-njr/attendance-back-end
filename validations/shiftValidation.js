@@ -3,6 +3,7 @@ const Joi = require("joi");
 // Schema for time objects inside shiftDays and exceptionDays
 const timeSchema = Joi.object({
   startTime: Joi.string()
+  .trim()
     .pattern(/^([01]\d|2[0-3]):([0-5]\d)$/) // HH:mm 24-hour format
     .required()
     .messages({
@@ -11,6 +12,7 @@ const timeSchema = Joi.object({
       "any.required": "زمان شروع الزامی است",
     }),
   endTime: Joi.string()
+  .trim()
     .pattern(/^([01]\d|2[0-3]):([0-5]\d)$/) // HH:mm 24-hour format
     .required()
     .messages({
@@ -39,11 +41,7 @@ const shiftDaySchema = Joi.object({
 
 // Schema for each exceptionDay
 const exceptionDaySchema = Joi.object({
-  // day: Joi.number()
-  //   .integer()
-  //   .messages({
-  //     "number.base": "روز باید عدد باشد",
-  //   }),
+
   date: Joi.date().required().messages({
     "date.base": "تاریخ باید یک تاریخ معتبر باشد",
     "any.required": "تاریخ الزامی است",
@@ -51,9 +49,7 @@ const exceptionDaySchema = Joi.object({
   time: Joi.array().items(timeSchema).required().messages({
     "any.required": "زمان‌ها الزامی هستند",
   }),
-  // isOffDay: Joi.boolean().default(false).messages({
-  //   "boolean.base": "offDay باید مقدار بولین باشد",
-  // }),
+ 
 });
 
 // Main shift validation schema

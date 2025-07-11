@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const RequestSchema = new mongoose.Schema(
   {
-    creator: {
+    user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
@@ -25,7 +25,11 @@ const RequestSchema = new mongoose.Schema(
       type: Date,
       required: true,
     },
-    note: {
+    userNote: {
+      type: String,
+      default: "",
+    },
+    customerNote: {
       type: String,
       default: "",
     },

@@ -1,7 +1,8 @@
-const Request  = require("../../models/request");
-const User  = require("../../models/user");
-const Customer  = require("../../models/customer");
+const Request = require("../../models/request");
+const User = require("../../models/user");
+const Customer = require("../../models/customer");
 const { tryCatch } = require("../../utils/tryCatch");
+const { searchFilter } = require("../../utils/search filter");
 const {
   updateRequestStatusValidation,
 } = require("../../validations/updateRequestStatusValidation");
@@ -14,9 +15,17 @@ const {
 
 const getRequests = tryCatch(async (req, res) => {
   const customerId = req.user.id;
-  const { data, pagination } = await paginate(req, Request, {
-    customer: customerId,
-  });
+  const { search } = req.query;
+  const searchQuery = searchFilter(search, ["status"]);
+
+  const { data, pagination } = await paginate(
+    req,
+    Request, // ✅ Correct model
+    searchQuery, // 3rd: search filter
+    { createdAt: -1 }, // 4th: sort
+    [{ path: "user" }], // 5th: no populate fields
+    { customer: customerId } // 6th: static filter);
+  );
 
   res.status(200).json({
     success: true,
@@ -33,9 +42,9 @@ const updateRequestStatus = tryCatch(async (req, res) => {
   const customerId = req.user.id;
   const requestId = req.params.requestId;
 
-  const { status } = req.body;
+  const { status, customerNote } = req.body;
 
-  console.log('req ::::: ',req)
+  console.log("req ::::: ", req);
 
   const { error } = updateRequestStatusValidation.validate(req.body);
 
@@ -49,26 +58,26 @@ const updateRequestStatus = tryCatch(async (req, res) => {
     _id: requestId,
     customer: customerId,
   });
-  console.log('existingRequest ::::: ',existingRequest)
+  console.log("existingRequest ::::: ", existingRequest);
 
   // Prevent changing status if it's already accepted or rejected
-if (existingRequest.status !== "pending") {
-  throw new ConflictError(
-    "وضعیت این درخواست قبلاً نهایی شده و قابل تغییر نیست."
-  );
-}
+  if (existingRequest.status !== "pending") {
+    throw new ConflictError(
+      "وضعیت این درخواست قبلاً نهایی شده و قابل تغییر نیست."
+    );
+  }
 
   // Proceed to update
   const updatedRequest = await Request.findByIdAndUpdate(
     requestId,
-    { status, reviewedAt: new Date() },
+    { status, customerNote, reviewedAt: new Date() },
     { new: true, runValidators: true }
   );
 
   res.status(200).json({
     updatedRequest,
     success: true,
-    message:"تغییر وضعیت با موفقیت انجام شد"
+    message: "تغییر وضعیت با موفقیت انجام شد",
   });
 });
 

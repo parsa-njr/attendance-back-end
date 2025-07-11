@@ -1,8 +1,10 @@
-const Request  = require("../../models/request");
-const User  = require("../../models/user");
-const Customer  = require("../../models/customer");
+const Request = require("../../models/request");
+const User = require("../../models/user");
+const Customer = require("../../models/customer");
 const { tryCatch } = require("../../utils/tryCatch");
 const { requestValidation } = require("../../validations/requestValidation");
+const paginate = require("../../utils/paginate");
+const { searchFilter } = require("../../utils/search filter");
 const {
   ConflictError,
   NotFoundError,
@@ -18,7 +20,7 @@ const createRequest = tryCatch(async (req, res) => {
     throw new UnprocessableEntityError(errorMessage);
   }
 
-  const { requestType, startDate, endDate, note } = req.body;
+  const { requestType, startDate, endDate, userNote } = req.body;
 
   const user = await User.findById(userId);
 
@@ -29,7 +31,7 @@ const createRequest = tryCatch(async (req, res) => {
 
   // Check for overlapping requests
   const overlap = await Request.findOne({
-    creator: userId,
+    user: userId,
     startDate: { $lte: new Date(endDate) },
     endDate: { $gte: new Date(startDate) },
   });
@@ -40,12 +42,12 @@ const createRequest = tryCatch(async (req, res) => {
 
   // Create new request
   const newRequest = await Request.create({
-    creator: user._id,
+    user: user._id,
     requestType,
     startDate,
     endDate,
     customer: user.customer,
-    note: note || "",
+    userNote: userNote || "",
     status: "pending",
   });
 
@@ -55,6 +57,32 @@ const createRequest = tryCatch(async (req, res) => {
   });
 });
 
+const getRequest = tryCatch(async (req, res) => {
+  const userId = req.user.id;
+  const { search } = req.query;
+  const searchQuery = searchFilter(search, ["status"]);
+
+  const { data, pagination } = await paginate(
+    req,
+    Request, // ✅ Correct model
+    searchQuery, // 3rd: search filter
+    { createdAt: -1 }, // 4th: sort
+    [], // 5th: no populate fields
+    { user: userId } // 6th: static filter
+  );
+
+  res.status(200).json({
+    success: true,
+    data: pagination
+      ? {
+          ...pagination,
+          data,
+        }
+      : data,
+  });
+});
+
 module.exports = {
   createRequest,
+  getRequest,
 };
