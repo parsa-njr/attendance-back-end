@@ -57,6 +57,10 @@ app.use(
 
 app.use("/api/v1/auth", authRoute);
 
+app.get("/", (req, res) => {
+  res.send(" Hello!");
+});
+
 // Error handlers
 app.use(notFound);
 app.use(errorHandler);
