@@ -1,3 +1,8 @@
 {
-    "port":8080
+"app":"attendanceparsa",
+"port":3000,
+"build":{
+"location":"iran"
+},
+"disks":[]
 }
