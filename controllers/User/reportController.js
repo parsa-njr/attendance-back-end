@@ -17,7 +17,7 @@ const getReport = tryCatch(async (req, res) => {
   const userId = req.user?.id;
 
   const user = await User.findById(userId);
-  console.log("user : ", user);
+
 
   if (!month || !year || !userId) {
     return res.status(400).json({
