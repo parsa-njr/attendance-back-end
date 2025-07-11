@@ -1,6 +1,6 @@
 {
 "app":"attendanceparsa",
-"port":3000,
+"port":8080,
 "build":{
 "location":"iran"
 },
