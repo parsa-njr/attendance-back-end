@@ -58,7 +58,7 @@ app.use(
 app.use("/api/v1/auth", authRoute);
 
 app.get("/", (req, res) => {
-  res.send(" Hello!");
+  res.sendFile(path.join(__dirname , "images/profile-images/1751555959121-402840757.jpeg"));
 });
 
 // Error handlers
