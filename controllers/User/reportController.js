@@ -56,44 +56,57 @@ const getReport = tryCatch(async (req, res) => {
   ]);
 
   const calendar = generateWorkCalendar(shifts);
-  const finalReport = calculateDetailedAttendanceReport(
-    calendar,
-    attendances,
-    requests,
-    shifts
-  );
+  const finalReport = calculateDetailedAttendanceReport(calendar, attendances, requests, shifts);
   const totalReport = summarizeAttendance(finalReport);
 
-  // ➤ If Excel export is requested
+  // === Excel file generation ===
   if (excel === "true") {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("Attendance Report");
 
-    // Define columns based on your finalReport structure
-    worksheet.columns = [
-      { header: "تاریخ", key: "date", width: 15 },
-      { header: "ساعت شروع مورد انتظار", key: "expectedStart", width: 20 },
-      { header: "ساعت پایان مورد انتظار", key: "expectedEnd", width: 20 },
-      { header: "وضعیت", key: "status", width: 15 },
-    ];
+    // Section 1: Summary Table
+    worksheet.addRow(["📊 گزارش خلاصه"]);
+    worksheet.addRow([]);
 
-    // Add each row
+    worksheet.addRow(["شاخص", "مقدار"]).font = { bold: true };
+    Object.entries(totalReport).forEach(([key, value]) => {
+      if (typeof value === "string") {
+        worksheet.addRow([convertKeyToLabel(key), value]);
+      }
+    });
+
+    worksheet.addRow([]);
+    worksheet.addRow(["وضعیت‌ها", "تعداد روز"]).font = { bold: true };
+    Object.entries(totalReport.statusCount || {}).forEach(([status, count]) => {
+      worksheet.addRow([convertKeyToLabel(status), count]);
+    });
+
+    // Section 2: Detailed Daily Report
+    worksheet.addRow([]);
+    worksheet.addRow(["📅 جزئیات روزانه"]);
+    worksheet.addRow([
+      "تاریخ",
+      "ساعت شروع مورد انتظار",
+      "ساعت پایان مورد انتظار",
+      "وضعیت",
+    ]).font = { bold: true };
+
     finalReport.forEach((item) => {
-      worksheet.addRow({
-        date: item.date,
-        expectedStart: item.expectedStart || "-",
-        expectedEnd: item.expectedEnd || "-",
-        status: item.status || "-",
-      });
+      worksheet.addRow([
+        item.date,
+        item.expectedStart || "-",
+        item.expectedEnd || "-",
+        convertKeyToLabel(item.status),
+      ]);
     });
 
-    // Style headers
-    worksheet.getRow(1).font = { bold: true };
-    worksheet.eachRow((row) => {
-      row.alignment = { vertical: "middle", horizontal: "center" };
+    worksheet.columns.forEach((col) => {
+      col.alignment = { vertical: "middle", horizontal: "center" };
+      col.width = 25;
     });
 
-    // Set download headers
+    worksheet.getRow(1).font = { bold: true, size: 14 };
+
     res.setHeader(
       "Content-Type",
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
@@ -108,7 +121,7 @@ const getReport = tryCatch(async (req, res) => {
     return;
   }
 
-  // ➤ Default: return JSON
+  // === Default: Return JSON
   return res.status(200).json({
     success: true,
     calendar,
@@ -119,6 +132,35 @@ const getReport = tryCatch(async (req, res) => {
     requests,
   });
 });
+
+// Helper to translate keys
+function convertKeyToLabel(key) {
+  const labels = {
+    totalPlannedTime: "مجموع زمان برنامه‌ریزی‌شده",
+    totalActualTime: "مجموع زمان واقعی حضور",
+    totalLeaveTime: "مجموع زمان مرخصی",
+    totalOvertime: "مجموع اضافه‌کاری",
+    totalDelay: "مجموع تأخیر",
+    totalDeficit: "مجموع کسری زمان",
+    averageDailyOvertime: "میانگین روزانه اضافه‌کاری",
+    averageDailyDelay: "میانگین روزانه تأخیر",
+    averageDailyDeficit: "میانگین روزانه کسری",
+
+    fullPresent: "حضور کامل",
+    delay: "تأخیر",
+    deficit: "کسری",
+    absent: "غیبت",
+    leave: "مرخصی",
+    shiftOffDay: "روز غیرکاری",
+
+    date: "تاریخ",
+    expectedStart: "ساعت شروع مورد انتظار",
+    expectedEnd: "ساعت پایان مورد انتظار",
+    status: "وضعیت",
+  };
+  return labels[key] || key;
+}
+
 
 module.exports = {
   getReport,
