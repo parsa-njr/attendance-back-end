@@ -16,7 +16,7 @@ const {
 // Get attendance report
 const getReport = tryCatch(async (req, res) => {
   const { month, year, excel } = req.query;
-  const userId = req.user?.id;
+  const userId = "6876664887f949c140d4ca6c";
 
   if (!month || !year || !userId) {
     return res.status(400).json({
