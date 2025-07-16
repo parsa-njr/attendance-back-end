@@ -16,7 +16,7 @@ const {
 // Get attendance report
 const getReport = tryCatch(async (req, res) => {
   const { month, year, excel } = req.query;
-  const userId = "6876664887f949c140d4ca6c";
+  const userId = req.user.id;
 
   if (!month || !year || !userId) {
     return res.status(400).json({
@@ -56,7 +56,12 @@ const getReport = tryCatch(async (req, res) => {
   ]);
 
   const calendar = generateWorkCalendar(shifts);
-  const finalReport = calculateDetailedAttendanceReport(calendar, attendances, requests, shifts);
+  const finalReport = calculateDetailedAttendanceReport(
+    calendar,
+    attendances,
+    requests,
+    shifts
+  );
   const totalReport = summarizeAttendance(finalReport);
 
   // === Excel file generation ===
@@ -160,7 +165,6 @@ function convertKeyToLabel(key) {
   };
   return labels[key] || key;
 }
-
 
 module.exports = {
   getReport,

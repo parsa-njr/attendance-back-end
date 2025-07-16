@@ -8,7 +8,7 @@ const requireRole = require("../../middleware/roleMiddleware")
 // const storage = multer.memoryStorage()
 // const upload = multer({storage : storage})
 
-router.get("/user/reports/"   , reportController.getReport)
+router.get("/user/reports/"   , requireRole("user") , reportController.getReport)
 
 
 
