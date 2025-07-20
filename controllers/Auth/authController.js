@@ -110,12 +110,31 @@ const checkLogin = async (req, res) => {
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.SECRET_KEY);
-    const user = await User.findById(decoded.id);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    let account;
 
-    res.status(200).json({ user, token });
+    if (decoded.role === "user") {
+      account = await User.findById(decoded.id);
+    } else if (decoded.role === "customer") {
+      account = await Customer.findById(decoded.id);
+    }
+
+    if (!account) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({
+      user: {
+        id: account._id,
+        name: account.name,
+        phone: account.phone,
+        role: decoded.role,
+        profileImage: account.profileImage || null,
+      },
+      token,
+    });
   } catch (error) {
-    console.error(error);
+    console.error("checkLogin error:", error);
     res.status(401).json({ message: "Token is invalid" });
   }
 };
