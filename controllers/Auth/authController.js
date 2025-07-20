@@ -1,5 +1,5 @@
-const Customer  = require("../../models/customer");
-const User  = require("../../models/user");
+const Customer = require("../../models/customer");
+const User = require("../../models/user");
 const moment = require("moment");
 const jwt = require("jsonwebtoken");
 const { tryCatch } = require("../../utils/tryCatch");
@@ -103,8 +103,26 @@ const logout = tryCatch(async (req, res) => {
   });
 });
 
+const checkLogin = async (req, res) => {
+  const token = req.headers["authorization"]?.split(" ")[1];
+  if (!token) {
+    return res.status(400).json({ message: "Token is missing" });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.SECRET_KEY);
+    const user = await User.findById(decoded.id);
+
+    res.status(200).json({ user, token });
+  } catch (error) {
+    console.error(error);
+    res.status(401).json({ message: "Token is invalid" });
+  }
+};
+
 module.exports = {
   signUp,
   login,
   logout,
+  checkLogin,
 };
