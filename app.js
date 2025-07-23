@@ -36,7 +36,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Serve static profile images
 app.use(
-  "/uploads/profile-images",
+  "/api/v1/uploads/profile-images",
   express.static(path.join(__dirname, "images/profile-images"))
 );
 
