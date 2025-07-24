@@ -79,8 +79,9 @@ const getAllShifts = tryCatch(async (req, res) => {
 //
 const getShiftById = tryCatch(async (req, res) => {
   const shiftId = req.params?.shiftId;
+  const customerId = req.user.id;
 
-  const shift = await Shift.findById(shiftId);
+  const shift = await Shift.findOne({ _id: shiftId, customer: customerId });
   if (!shift) {
     throw new NotFoundError("شیفت یافت نشد");
   }
@@ -97,7 +98,7 @@ const getShiftById = tryCatch(async (req, res) => {
 //
 const updateShift = tryCatch(async (req, res) => {
   const shiftId = req.params?.shiftId;
-  const  customerId  = req.user.id;
+  const customerId = req.user.id;
 
   const customer = await Customer.findById(customerId);
   if (!customer) {
