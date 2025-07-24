@@ -6,6 +6,7 @@ const {
   UnprocessableEntityError,
 } = require("../../errors/customError");
 const paginate = require("../../utils/paginate");
+const { searchFilter } = require("../../utils/search filter");
 const { shiftValidation } = require("../../validations/shiftValidation"); // You need to create this schema
 
 //
