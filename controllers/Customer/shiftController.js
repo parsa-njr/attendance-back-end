@@ -57,17 +57,22 @@ const createShift = tryCatch(async (req, res) => {
 //
 const getAllShifts = tryCatch(async (req, res) => {
   const customerId = req.user.id;
-
-  const { data, pagination } = await paginate(req, Shift, {
-    customer: customerId,
-  });
+  const searchQuery = searchFilter(search, ["shiftName"]);
+  const { data, pagination } = await paginate(
+    req,
+    Shift,
+    searchQuery, // only the search part
+    { createdAt: -1 },
+    [{}],
+    { customer: customerId } // base filter passed here
+  );
 
   res.status(200).json({
     success: true,
     data: pagination
       ? {
-          ...pagination,
           data,
+          ...pagination,
         }
       : data,
   });
